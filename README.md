@@ -82,4 +82,4 @@ agente_ia/
 └── run.py
 ```
 ### Author
-ItzRayoo23
+   Manuel Rives
