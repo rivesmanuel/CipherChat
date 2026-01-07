@@ -1,0 +1,10 @@
+python-dotenv
+openai
+zxcvbn
+requests
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+psycopg2-binary
+Flask-CORS
+python-dotenv

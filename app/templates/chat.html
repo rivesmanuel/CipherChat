@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistente de Seguridad</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+            overflow: hidden;
+        }
+        .main-container {
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 300px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .conversations-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .conversation-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        .conversation-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .conversation-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+        }
+        .conversation-title {
+            font-size: 14px;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .conversation-date {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+        .conversation-item .btn-link {
+            opacity: 0;
+            transition: opacity 0.2s;
+            color: #ff6b6b;
+        }
+        .conversation-item:hover .btn-link {
+            opacity: 1;
+        }
+        .conversation-item .flex-grow-1 {
+            cursor: pointer;
+        }
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        #chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        #chat-box::-webkit-scrollbar {
+            width: 8px;
+        }
+        #chat-box::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        #chat-box::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        .message {
+            margin-bottom: 15px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .message-bubble {
+            padding: 12px 18px;
+            border-radius: 18px;
+            max-width: 70%;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+        .user .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin-left: auto;
+            color: white;
+        }
+        .assistant .message-bubble {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .system .message-bubble {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 12px;
+            opacity: 0.7;
+            max-width: 50%;
+            margin: 0 auto;
+        }
+        .message-bubble .btn {
+            margin-top: 8px;
+        }
+        .input-group {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        #message-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        #message-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+            color: white;
+        }
+        #mic-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        #mic-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        #mic-btn.recording {
+            background: #dc3545;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        #send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        #send-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .badge {
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <button class="btn btn-primary w-100" id="new-chat-btn">
+                    <i class="bi bi-plus-lg me-2"></i>Nueva Conversación
+                </button>
+            </div>
+            <div class="conversations-list" id="conversations-list">
+                <!-- Se llenarán dinámicamente -->
+            </div>
+        </div>
+
+        <!-- Chat principal -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-shield-check fs-2 me-3"></i>
+                    <div>
+                        <h4 class="mb-0">Asistente de Seguridad</h4>
+                        <small class="text-white-50">Análisis de contraseñas y generación de wordlists</small>
+                    </div>
+                    <span class="badge bg-success ms-auto">
+                        <i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i>Online
+                    </span>
+                </div>
+            </div>
+            
+            <div id="chat-box"></div>
+            
+            <div class="input-group">
+                <button class="btn btn-secondary" id="mic-btn" type="button" title="Grabar audio">
+                    <i class="bi bi-mic-fill"></i>
+                </button>
+                <input type="text" 
+                       id="message-input" 
+                       class="form-control" 
+                       placeholder="Escribe tu mensaje o usa el micrófono..."
+                       autocomplete="off">
+                <button class="btn btn-primary" id="send-btn" type="button">
+                    <i class="bi bi-send-fill"></i> Enviar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let conversationId = null;
+        const chatBox = document.getElementById('chat-box');
+        const messageInput = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-btn');
+        const newChatBtn = document.getElementById('new-chat-btn');
+        const conversationsList = document.getElementById('conversations-list');
+        const micBtn = document.getElementById('mic-btn');
+
+        // Cargar lista de conversaciones
+        async function loadConversations() {
+            const response = await fetch('/api/conversaciones');
+            const conversaciones = await response.json();
+            
+            conversationsList.innerHTML = '';
+            conversaciones.forEach(conv => {
+                const item = document.createElement('div');
+                item.className = `conversation-item ${conv.id === conversationId ? 'active' : ''}`;
+                item.innerHTML = `
+                    <div class="d-flex align-items-start">
+                        <div class="flex-grow-1" onclick="loadConversation(${conv.id})">
+                            <div class="conversation-title">${conv.titulo}</div>
+                            <div class="conversation-date">${new Date(conv.actualizado).toLocaleString('es-ES')}</div>
+                        </div>
+                        <button class="btn btn-sm btn-link text-danger p-0 ms-2" onclick="deleteConversation(event, ${conv.id})" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                `;
+                conversationsList.appendChild(item);
+            });
+        }
+
+        // Eliminar conversación
+        async function deleteConversation(event, id) {
+            event.stopPropagation();
+            
+            if (!confirm('¿Estás seguro de que quieres eliminar esta conversación?')) {
+                return;
+            }
+            
+            try {
+                await fetch(`/api/conversacion/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (id === conversationId) {
+                    conversationId = null;
+                    chatBox.innerHTML = '';
+                    addMessage('¡Hola! Soy tu asistente de seguridad. Puedo ayudarte a:\n\n• Generar wordlists personalizadas\n• Analizar fortaleza de contraseñas\n• Verificar si una contraseña ha sido filtrada\n\n¿En qué puedo ayudarte?', 'assistant');
+                }
+                
+                loadConversations();
+            } catch (error) {
+                alert('Error al eliminar la conversación');
+            }
+        }
+
+        // Cargar una conversación específica
+        async function loadConversation(id) {
+            conversationId = id;
+            const response = await fetch(`/api/conversacion/${id}`);
+            const data = await response.json();
+            
+            chatBox.innerHTML = '';
+            data.mensajes.forEach(msg => {
+                if (msg.role !== 'system') {
+                    addMessage(msg.content, msg.role);
+                }
+            });
+            
+            loadConversations();
+        }
+
+        // Nueva conversación
+        newChatBtn.addEventListener('click', async () => {
+            conversationId = null;
+            chatBox.innerHTML = '';
+            addMessage('¡Hola! Soy tu asistente de seguridad. Puedo ayudarte a:\n\n• Generar wordlists personalizadas\n• Analizar fortaleza de contraseñas\n• Verificar si una contraseña ha sido filtrada\n\n¿En qué puedo ayudarte?', 'assistant');
+        });
+
+        // Añadir mensaje al chat (con soporte para descarga)
+        function addMessage(content, sender, downloadData = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message d-flex ${sender === 'user' ? 'justify-content-end' : sender === 'system' ? 'justify-content-center' : ''}`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            bubble.textContent = content;
+            
+            // Si hay datos de descarga, añadir botón
+            if (downloadData && downloadData.filename) {
+                const downloadBtn = document.createElement('button');
+                downloadBtn.className = 'btn btn-sm btn-success mt-2 w-100';
+                downloadBtn.innerHTML = `<i class="bi bi-download me-1"></i>Descargar wordlist (${downloadData.total || 0} contraseñas)`;
+                downloadBtn.onclick = () => {
+                    window.location.href = `/api/descargar/${downloadData.filename}`;
+                };
+                bubble.appendChild(document.createElement('br'));
+                bubble.appendChild(downloadBtn);
+            }
+            
+            messageDiv.appendChild(bubble);
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Indicador de carga
+        function addLoadingIndicator() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message d-flex';
+            loadingDiv.id = 'loading-indicator';
+            loadingDiv.innerHTML = `
+                <div class="message-bubble">
+                    <div class="spinner-border spinner-border-sm me-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    Procesando...
+                </div>
+            `;
+            chatBox.appendChild(loadingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function removeLoadingIndicator() {
+            const loading = document.getElementById('loading-indicator');
+            if (loading) loading.remove();
+        }
+
+        // Enviar mensaje
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            messageInput.value = '';
+            sendBtn.disabled = true;
+            addLoadingIndicator();
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, conversation_id: conversationId })
+                });
+
+                const data = await response.json();
+                conversationId = data.conversation_id;
+                
+                removeLoadingIndicator();
+                
+                // Verificar si hay datos de descarga en la respuesta
+                const downloadData = data.download || null;
+                addMessage(data.response, 'assistant', downloadData);
+                
+                loadConversations();
+            } catch (error) {
+                removeLoadingIndicator();
+                addMessage('Error: No se pudo conectar con el servidor', 'assistant');
+            } finally {
+                sendBtn.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Web Speech API - Reconocimiento de voz
+        let recognition = null;
+
+        console.log('Verificando soporte de Web Speech API...');
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            console.log('✅ Web Speech API soportada');
+            
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'es-ES';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = () => {
+                console.log('🎤 Grabación iniciada');
+                micBtn.classList.add('recording');
+                micBtn.innerHTML = '<i class="bi bi-mic-fill"></i>';
+                messageInput.placeholder = 'Escuchando...';
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                console.log('📝 Texto reconocido:', transcript);
+                messageInput.value = transcript;
+                messageInput.focus();
+            };
+
+            recognition.onerror = (event) => {
+                console.error('❌ Error en reconocimiento de voz:', event.error);
+                micBtn.classList.remove('recording');
+                messageInput.placeholder = 'Escribe tu mensaje o usa el micrófono...';
+                
+                if (event.error === 'no-speech') {
+                    alert('No se detectó voz. Intenta de nuevo.');
+                } else if (event.error === 'not-allowed') {
+                    alert('Permiso de micrófono denegado. Habilítalo en la configuración del navegador.');
+                } else {
+                    alert('Error: ' + event.error);
+                }
+            };
+
+            recognition.onend = () => {
+                console.log('🛑 Grabación finalizada');
+                micBtn.classList.remove('recording');
+                micBtn.innerHTML = '<i class="bi bi-mic-fill"></i>';
+                messageInput.placeholder = 'Escribe tu mensaje o usa el micrófono...';
+            };
+
+            micBtn.addEventListener('click', () => {
+                console.log('👆 Click en botón de micrófono');
+                if (micBtn.classList.contains('recording')) {
+                    console.log('Deteniendo grabación...');
+                    recognition.stop();
+                } else {
+                    console.log('Iniciando grabación...');
+                    try {
+                        recognition.start();
+                    } catch (e) {
+                        console.error('Error al iniciar:', e);
+                    }
+                }
+            });
+            
+            console.log('✅ Listeners configurados correctamente');
+        } else {
+            console.warn('❌ Web Speech API NO soportada en este navegador');
+            micBtn.disabled = true;
+            micBtn.title = 'Tu navegador no soporta reconocimiento de voz (usa Chrome/Edge)';
+            micBtn.style.opacity = '0.5';
+        }
+
+        // Cargar conversaciones al inicio
+        loadConversations();
+        
+        // Mensaje de bienvenida
+        setTimeout(() => {
+            addMessage('¡Hola! Soy tu asistente de seguridad. Puedo ayudarte a:\n\n• Generar wordlists personalizadas\n• Analizar fortaleza de contraseñas\n• Verificar si una contraseña ha sido filtrada\n\n¿En qué puedo ayudarte?', 'assistant');
+        }, 500);
+    </script>
+</body>
+</html>

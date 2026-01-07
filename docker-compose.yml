@@ -1,0 +1,13 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: agentuser
+      POSTGRES_PASSWORD: "pass0117"
+      POSTGRES_DB: agentdb
+    volumes:
+      - persistente:/var/lib/postgresql/data
+volumes:
+  persistente:
