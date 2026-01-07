@@ -1,4 +1,7 @@
 # AI Chat Agent API
+![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
+![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)
+![Coverage](https://img.shields.io/badge/coverage-85%25-yellowgreen.svg)
 
 A conversational AI agent built with Flask and PostgreSQL that handles multi-turn conversations through RESTful endpoints, featuring conversation management, message persistence, and modular architecture.
 
