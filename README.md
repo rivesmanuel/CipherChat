@@ -1,4 +1,5 @@
-# AI Chat Agent API
+# CipherChat
+
 [![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-2.3+-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
@@ -7,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Active-success)](https://github.com/ItzRayoo23/agente_ia)
 
-A conversational AI agent built with Flask and PostgreSQL that handles multi-turn conversations through RESTful endpoints, featuring conversation management, message persistence, and modular architecture.
+AI-powered security agent with integrated password analysis tools. Flask-based conversational API with PostgreSQL backend for persistent multi-turn dialogues focused on cybersecurity tasks.
 
 ## Features
 
@@ -16,6 +17,28 @@ A conversational AI agent built with Flask and PostgreSQL that handles multi-tur
 - Multi-turn conversation support with context awareness
 - OpenAI GPT integration for intelligent responses
 - Modular Flask Blueprint architecture
+
+### 🔐 Integrated Security Tools
+
+#### 1. Password Dictionary Generator
+Creates customized wordlists for security testing based on:
+- Target information (names, dates, keywords)
+- Common patterns and mutations
+- Language-specific variations
+- Customizable ruleset for password generation
+
+**Use cases:**
+- Penetration testing engagements
+- Security audits
+- Password policy validation
+- Red team operations
+
+#### 2. Password Strength Analyzer
+Evaluates password security through:
+- Entropy calculation
+- Pattern detection (common sequences, keyboard patterns)
+- Dictionary word detection
+- Complexity scoring (uppercase, lowercase, numbers, symbols)
 
 ## Tech Stack
 
